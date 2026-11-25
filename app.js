@@ -3,11 +3,11 @@
 // =============================================================
 
 const MENU = [
-  { secao: "faq",           icone: "❓", rotulo: "Perguntas frequentes" },
-  { secao: "higiene",       icone: "🪥", rotulo: "Higiene bucal" },
-  { secao: "preoperatorio", icone: "🏥", rotulo: "Orientações pré-operatórias" },
-  { secao: "videos",        icone: "🎬", rotulo: "Vídeos educativos" },
-  { secao: "dentista",      icone: "🦷", rotulo: "Quando procurar um dentista" },
+  { secao: "faq",           icone: "💬", cor: "#2f6fe4", rotulo: "Perguntas frequentes",        desc: "Dúvidas mais comuns" },
+  { secao: "higiene",       icone: "🪥", cor: "#19b597", rotulo: "Higiene bucal",               desc: "Escovação, fio e língua" },
+  { secao: "preoperatorio", icone: "🩺", cor: "#8b5cf6", rotulo: "Orientações pré-operatórias", desc: "Antes e depois de procedimentos" },
+  { secao: "videos",        icone: "🎬", cor: "#f43f5e", rotulo: "Vídeos educativos",           desc: "Assista aqui mesmo" },
+  { secao: "dentista",      icone: "🦷", cor: "#f59e0b", rotulo: "Quando procurar um dentista", desc: "Sinais de alerta" },
 ];
 
 const INTRO_SECAO = {
@@ -100,7 +100,48 @@ function rolarParaFim() {
   requestAnimationFrame(() => areaMensagens.scrollTo({ top: areaMensagens.scrollHeight, behavior: "smooth" }));
 }
 
+function linhaBot(conteudo) {
+  const linha = document.createElement("div");
+  linha.className = "linha-bot";
+  linha.innerHTML = '<div class="mini-avatar" aria-hidden="true"><img src="icone.png" alt=""></div>';
+  linha.appendChild(conteudo);
+  return linha;
+}
+
+function botaoOpcao(op) {
+  const b = document.createElement("button");
+  if (op.menu) {
+    b.className = "cartao-menu";
+    b.style.setProperty("--cor-icone", `color-mix(in srgb, ${op.cor} 16%, transparent)`);
+    b.innerHTML = `<span class="icone" aria-hidden="true">${op.icone}</span><span><b></b><small></small></span>`;
+    b.querySelector("b").textContent = op.rotulo;
+    b.querySelector("small").textContent = op.desc || "";
+  } else {
+    b.className = "opcao" + (op.voltar ? " opcao-voltar" : "");
+    b.textContent = op.rotulo;
+  }
+  b.onclick = () => {
+    msgUsuario(op.rotulo.replace(/^[\p{Extended_Pictographic}️↩]+\s*/u, ""));
+    op.acao();
+  };
+  return b;
+}
+
+const ICONE_SOM = '<svg class="i-som" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+const ICONE_PARAR = '<svg class="i-parar" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
+
+function botaoOuvir(texto) {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "btn-ouvir";
+  b.setAttribute("aria-pressed", "false");
+  b.innerHTML = `${ICONE_SOM}${ICONE_PARAR}<span class="rotulo">Ouvir</span>`;
+  b.onclick = () => (b.classList.contains("falando") ? Voz.parar() : Voz.falar(texto, b));
+  return b;
+}
+
 function msgUsuario(texto) {
+  Voz.parar();
   const div = document.createElement("div");
   div.className = "msg msg-usuario";
   div.textContent = texto;
@@ -108,11 +149,14 @@ function msgUsuario(texto) {
   rolarParaFim();
 }
 
-// opcoes: [{ rotulo, acao, destaque? }]  |  extra: elemento HTML adicional (ex.: vídeo)
-function msgBot(texto, opcoes = [], extra = null) {
-  const digitando = document.createElement("div");
-  digitando.className = "msg msg-bot digitando";
-  digitando.innerHTML = "<span></span><span></span><span></span>";
+// opcoes: [{ rotulo, acao, voltar? }]  |  extra: elemento HTML adicional (ex.: vídeo)
+// ouvir: mostra o botão "Ouvir" (leitura em voz alta)
+// Devolve { texto, botaoOuvir } quando a mensagem aparece na tela.
+function msgBot(texto, opcoes = [], extra = null, { ouvir = false } = {}) {
+  const bolinhas = document.createElement("div");
+  bolinhas.className = "msg msg-bot digitando";
+  bolinhas.innerHTML = "<span></span><span></span><span></span>";
+  const digitando = linhaBot(bolinhas);
   areaMensagens.appendChild(digitando);
   rolarParaFim();
 
@@ -125,27 +169,20 @@ function msgBot(texto, opcoes = [], extra = null) {
       const balao = document.createElement("div");
       balao.className = "msg msg-bot";
       balao.innerHTML = formatar(texto);
+      const ouvirBtn = ouvir && Voz.podeFalar ? botaoOuvir(texto) : null;
+      if (ouvirBtn) balao.appendChild(ouvirBtn);
       if (extra) balao.appendChild(extra);
       bloco.appendChild(balao);
 
       if (opcoes.length) {
         const lista = document.createElement("div");
-        lista.className = "opcoes";
-        for (const op of opcoes) {
-          const b = document.createElement("button");
-          b.className = "opcao" + (op.destaque ? " opcao-destaque" : "") + (op.voltar ? " opcao-voltar" : "");
-          b.textContent = op.rotulo;
-          b.onclick = () => {
-            msgUsuario(op.rotulo.replace(/^[\p{Extended_Pictographic}️]+\s*/u, ""));
-            op.acao();
-          };
-          lista.appendChild(b);
-        }
+        lista.className = opcoes.some((o) => o.menu) ? "opcoes opcoes-menu" : "opcoes";
+        opcoes.forEach((op) => lista.appendChild(botaoOpcao(op)));
         bloco.appendChild(lista);
       }
-      areaMensagens.appendChild(bloco);
+      areaMensagens.appendChild(linhaBot(bloco));
       rolarParaFim();
-      ok();
+      ok({ texto, botaoOuvir: ouvirBtn });
     }, 450)
   );
 }
@@ -169,7 +206,7 @@ const voltarMenu = { rotulo: "🏠 Menu inicial", acao: () => mostrarMenu(), vol
 function mostrarMenu(texto = "Como posso te ajudar? Escolha uma opção ou digite sua pergunta. 👇") {
   return msgBot(
     texto,
-    MENU.map((m) => ({ rotulo: `${m.icone} ${m.rotulo}`, acao: () => abrirSecao(m.secao), destaque: true }))
+    MENU.map((m) => ({ ...m, menu: true, acao: () => abrirSecao(m.secao) }))
   );
 }
 
@@ -235,7 +272,7 @@ function responder(item, voltar, relacionados = []) {
     ...(voltar ? [{ rotulo: "↩ Voltar", acao: voltar, voltar: true }] : []),
     voltarMenu,
   ];
-  return msgBot(`**${item.titulo}**\n\n${item.resposta}`, opcoes, extra);
+  return msgBot(`**${item.titulo}**\n\n${item.resposta}`, opcoes, extra, { ouvir: true });
 }
 
 // ---------- Perguntas digitadas ----------
@@ -258,7 +295,7 @@ function tratarPergunta(texto) {
     return msgBot(CONFIG.mensagemNaoSei, [
       { rotulo: "🦷 Quando procurar um dentista", acao: () => abrirSecao("dentista") },
       voltarMenu,
-    ]);
+    ], null, { ouvir: true });
   }
 
   const relacionados = resultados
@@ -277,6 +314,7 @@ function fecharModal(modal) {
 }
 
 function abrirVideo(item) {
+  Voz.parar();
   $("video-titulo").textContent = item.titulo;
   $("video-frame").src = `https://www.youtube-nocookie.com/embed/${item.video}?autoplay=1&rel=0&playsinline=1`;
   $("video-link").href = `https://www.youtube.com/watch?v=${item.video}`;
@@ -322,17 +360,83 @@ async function iniciarChat() {
 $("btn-iniciar").onclick = iniciarChat;
 $("btn-qr").onclick = abrirQR;
 $("btn-qr-inicial").onclick = abrirQR;
-$("btn-menu").onclick = () => mostrarMenu();
+$("btn-menu").onclick = () => { Voz.parar(); mostrarMenu(); };
+
+// porVoz: a pergunta foi falada → a resposta é lida em voz alta automaticamente
+function enviarPergunta(texto, { porVoz = false } = {}) {
+  texto = texto.trim();
+  if (!texto) return;
+  $("sugestoes").innerHTML = ""; // as sugestões somem depois da primeira pergunta
+  msgUsuario(texto);
+  conteudoPronto
+    .then(() => tratarPergunta(texto))
+    .then((r) => { if (porVoz && r) Voz.falar(r.texto, r.botaoOuvir); });
+}
+
+const campo = $("campo-pergunta");
+const atualizarEnviar = () => { $("btn-enviar").disabled = !campo.value.trim(); };
+campo.addEventListener("input", atualizarEnviar);
 
 $("form-pergunta").addEventListener("submit", (e) => {
   e.preventDefault();
-  const campo = $("campo-pergunta");
-  const texto = campo.value.trim();
-  if (!texto) return;
+  if (escuta) escuta.cancelar();
+  const texto = campo.value;
   campo.value = "";
-  msgUsuario(texto);
-  conteudoPronto.then(() => tratarPergunta(texto));
+  atualizarEnviar();
+  enviarPergunta(texto);
 });
+
+// ---------- Perguntar por voz ----------
+
+let avisoTimer;
+function avisoVoz(texto) {
+  const el = $("aviso-voz");
+  el.textContent = texto;
+  el.hidden = false;
+  clearTimeout(avisoTimer);
+  avisoTimer = setTimeout(() => { el.hidden = true; }, 6000);
+}
+
+let escuta = null;
+function modoOuvindo(ativo) {
+  $("btn-voz").classList.toggle("ouvindo", ativo);
+  $("btn-voz").setAttribute("aria-label", ativo ? "Parar de ouvir" : "Perguntar por voz");
+  $("form-pergunta").classList.toggle("ouvindo", ativo);
+  campo.placeholder = ativo ? "Ouvindo... fale sua pergunta" : "Digite ou fale sua pergunta...";
+}
+
+$("btn-voz").onclick = () => {
+  if (escuta) return escuta.parar(); // tocar de novo = terminei de falar
+  if (!Voz.podeOuvir) {
+    // Firefox e alguns navegadores de aplicativos: o teclado do celular tem ditado (🎤)
+    avisoVoz("Este navegador não reconhece voz. Toque no campo e use o microfone 🎤 do teclado para ditar.");
+    campo.focus();
+    return;
+  }
+  $("aviso-voz").hidden = true;
+  Voz.desbloquear(); // iPhone: libera a leitura automática da resposta
+  modoOuvindo(true);
+  escuta = Voz.ouvir({
+    aoParcial: (t) => { campo.value = t; atualizarEnviar(); },
+    aoFinal: (t) => {
+      campo.value = "";
+      atualizarEnviar();
+      enviarPergunta(t, { porVoz: true });
+    },
+    aoErro: (codigo) => avisoVoz(Voz.mensagemErro(codigo)),
+    aoFim: () => { escuta = null; modoOuvindo(false); },
+  });
+};
+
+// Sugestões de perguntas acima do campo de digitação (config.js → sugestoes)
+for (const s of CONFIG.sugestoes || []) {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "sugestao";
+  b.textContent = s;
+  b.onclick = () => enviarPergunta(s);
+  $("sugestoes").appendChild(b);
+}
 
 // ?qr na URL abre o QR Code direto (útil para projetar na sala)
 if (new URLSearchParams(location.search).has("qr")) abrirQR();

@@ -7,7 +7,7 @@ const CONFIG = {
   planilhaCSV: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQOKUYLL1sM7uEWdEytebb46zvwuD_spNeT7KoOEECQsgrTYV1iLVDnWAYrd2lPpeihzD_SVazVkA0w/pub?output=csv",
 
   // Link público do site (usado no QR Code). Se vazio, usa o endereço atual.
-  linkPublico: "https://odontobot-up.netlify.app",
+  linkPublico: "https://nicoly-odontobot-up.netlify.app",
 
   mensagemBoasVindas:
     "Olá! 😊 Eu sou o **OdontoBot**, seu assistente virtual odontológico.\nEscolha uma das opções abaixo ou digite sua pergunta.",
@@ -18,4 +18,15 @@ const CONFIG = {
   // Quão parecida a pergunta precisa ser com o conteúdo (0 a 1).
   // Mais alto = mais exigente (responde menos, erra menos).
   limiarConfianca: 0.45,
+
+  // Perguntas prontas que aparecem acima do campo de digitação.
+  // Use perguntas que existam na planilha. Deixe [] para esconder.
+  sugestoes: [
+    "Como passar o fio dental?",
+    "Cuidados após extração",
+    "Preciso fazer jejum?",
+    "Dente sensível ao gelado",
+    "Minha gengiva sangra",
+    "O que é bruxismo?",
+  ],
 };

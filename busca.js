@@ -76,23 +76,93 @@ function criarIndice(itens) {
   const N = docs.length || 1;
   const importancia = (r) => Math.log(1 + N / (freq.get(r) || 1));
 
-  return { docs, importancia };
+  // Vocabulário: todas as palavras cadastradas (usado para corrigir erros de digitação)
+  const vocabulario = new Map();
+  for (const d of docs) for (const p of d.exatas.keys()) vocabulario.set(p, (vocabulario.get(p) || 0) + 1);
+
+  return { docs, importancia, vocabulario, radicais: freq };
+}
+
+// ---------- Tolerância a erros de digitação ----------
+
+// Quantas letras precisam ser trocadas, incluídas, apagadas ou invertidas
+// para uma palavra virar a outra. Ex.: "dentau" → "dental" = 1; "bruxsmo" → "bruxismo" = 1
+function distancia(a, b, max) {
+  if (Math.abs(a.length - b.length) > max) return max + 1;
+  let ant2 = null;
+  let ant = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    const atual = [i];
+    let menor = i;
+    for (let j = 1; j <= b.length; j++) {
+      let v = Math.min(ant[j] + 1, atual[j - 1] + 1, ant[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      if (ant2 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) v = Math.min(v, ant2[j - 2] + 1);
+      atual.push(v);
+      menor = Math.min(menor, v);
+    }
+    if (menor > max) return max + 1; // já passou do limite: desiste cedo
+    ant2 = ant;
+    ant = atual;
+  }
+  return ant[b.length];
+}
+
+// Palavras curtas não são corrigidas (muito risco de confundir).
+// Até 7 letras aceita 1 erro; 8 ou mais aceita 2.
+function errosAceitos(palavra) {
+  if (palavra.length < 4) return 0;
+  return palavra.length >= 8 ? 2 : 1;
+}
+
+// Erro de digitação de uma palavra vazia ("presiso" → "preciso") também é ignorado
+function pareceVazia(palavra) {
+  if (palavra.length < 4) return false;
+  for (const v of PALAVRAS_VAZIAS) if (v.length >= 4 && v[0] === palavra[0] && distancia(palavra, v, 1) <= 1) return true;
+  return false;
+}
+
+// Para cada palavra da pergunta, devolve as formas a comparar com o conteúdo:
+// a palavra original e, se ela não existir no conteúdo, a palavra cadastrada mais parecida.
+// Exige a mesma primeira letra (quase ninguém erra a primeira) para evitar trocas absurdas.
+function corrigirPalavra(indice, palavra) {
+  const original = { palavra, fator: 1 };
+  if (indice.vocabulario.has(palavra)) return [original];
+  const max = errosAceitos(palavra);
+  if (!max) return [original];
+
+  let melhor = null;
+  for (const [candidata, vezes] of indice.vocabulario) {
+    if (candidata[0] !== palavra[0] || candidata.length < 4) continue;
+    const d = distancia(palavra, candidata, max);
+    if (d > max) continue;
+    if (!melhor || d < melhor.d || (d === melhor.d && vezes > melhor.vezes)) melhor = { candidata, d, vezes };
+  }
+  if (!melhor) return indice.radicais.has(radical(palavra)) || !pareceVazia(palavra) ? [original] : [];
+  // A forma corrigida vem primeiro: é ela que define o peso da palavra
+  return [{ palavra: melhor.candidata, fator: melhor.d === 1 ? 0.85 : 0.7 }, original];
 }
 
 function buscar(indice, pergunta, limite = 3) {
-  const palavras = [...new Set(extrairPalavras(pergunta))];
-  if (!palavras.length) return [];
+  const vistas = new Set();
+  const termos = extrairPalavras(pergunta)
+    .map((p) => corrigirPalavra(indice, p))
+    .filter((formas) => formas.length && !vistas.has(formas[0].palavra) && vistas.add(formas[0].palavra));
+  if (!termos.length) return [];
 
-  const pesosPergunta = palavras.map((p) => indice.importancia(radical(p)));
+  const pesosPergunta = termos.map((formas) => indice.importancia(radical(formas[0].palavra)));
   const total = pesosPergunta.reduce((a, b) => a + b, 0);
 
   return indice.docs
     .map((d) => {
       let soma = 0;
-      palavras.forEach((p, i) => {
-        const exata = d.exatas.get(p) || 0;
-        const parecida = (d.radicais.get(radical(p)) || 0) * 0.85;
-        soma += pesosPergunta[i] * Math.max(exata, parecida);
+      termos.forEach((formas, i) => {
+        let melhor = 0;
+        for (const { palavra: p, fator } of formas) {
+          const exata = d.exatas.get(p) || 0;
+          const parecida = (d.radicais.get(radical(p)) || 0) * 0.85;
+          melhor = Math.max(melhor, Math.max(exata, parecida) * fator);
+        }
+        soma += pesosPergunta[i] * melhor;
       });
       return { item: d.item, nota: soma / total };
     })

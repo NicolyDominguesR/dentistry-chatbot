@@ -14,7 +14,7 @@ Funciona no navegador do celular ou do computador, sem instalação, por meio de
 | Leitura da planilha | **PapaParse** | Converte a planilha em dados que o chatbot entende |
 | Vídeos | **YouTube incorporado** (*embed*) | Os vídeos tocam dentro do chatbot, sem sair da página |
 | QR Code | **QRCode.js** | Gera o QR Code de acesso para a turma |
-| Hospedagem | **GitHub Pages** | Link público, gratuito e com HTTPS |
+| Hospedagem | **Netlify** | Link público, gratuito e com HTTPS |
 
 **Não há servidor (backend).** A planilha funciona como banco de dados e o navegador de cada pessoa executa toda a lógica. Por isso o sistema é gratuito e suporta muitos acessos simultâneos.
 
@@ -42,11 +42,17 @@ Quando o paciente digita uma pergunta, o OdontoBot executa estas etapas:
 1. **Normalização:** converte para minúsculas e remove acentos e pontuação.
    *"Como passo o FIO DENTAL?"* → *"como passo o fio dental"*
 2. **Limpeza:** remove palavras sem significado (*como, o, de, meu...*) e troca sinônimos (*dói → dor*, *arrancar → extração*).
-3. **Comparação:** confere as palavras da pergunta com o título, as palavras-chave e a resposta de cada item cadastrado. Aceita variações da mesma palavra (*escovar ≈ escovação ≈ escova*).
-4. **Pontuação:** cada item recebe uma nota de 0 a 1. Palavras raras pesam mais que palavras comuns (*siso* diz mais que *dente*).
-5. **Decisão:**
+3. **Correção de digitação:** palavras que não existem no conteúdo são trocadas pela palavra cadastrada mais parecida (*"estracao" → "extração"*, *"bruxsmo" → "bruxismo"*). Aceita 1 letra errada em palavras de até 7 letras e 2 nas maiores.
+4. **Comparação:** confere as palavras da pergunta com o título, as palavras-chave e a resposta de cada item cadastrado. Aceita variações da mesma palavra (*escovar ≈ escovação ≈ escova*).
+5. **Pontuação:** cada item recebe uma nota de 0 a 1. Palavras raras pesam mais que palavras comuns (*siso* diz mais que *dente*).
+6. **Decisão:**
    - Nota alta → mostra a resposta cadastrada, sugere assuntos relacionados e exibe o vídeo, se houver.
    - Nota baixa → *"Não tenho essa informação. Procure um cirurgião-dentista."*
+
+### c) Voz (sem custo, usa o próprio navegador)
+- **Ouvir:** o botão 🔊 *Ouvir* em cada resposta lê o texto em voz alta, em português.
+- **Perguntar falando:** toque no 🎤 ao lado do campo de digitação, fale a pergunta e o bot responde **e lê a resposta em voz alta**.
+- Funciona no **Safari (iPhone e Mac)**, Chrome, Edge e Android. No iPhone, o **Siri/Ditado precisa estar ativado** em Ajustes. No Firefox, que não reconhece voz, o bot sugere usar o microfone do teclado.
 
 Essa técnica corresponde à etapa de **recuperação** (*retrieval*) dos sistemas de IA conhecidos como RAG, sem a etapa de geração de texto. Isso foi intencional, para evitar respostas inventadas em temas de saúde.
 
@@ -84,9 +90,10 @@ O conteúdo fica em uma **Planilha Google** com estas colunas:
 
 ```
 index.html     → estrutura das telas (inicial, chat, vídeo, QR Code)
-estilo.css     → identidade visual (azul-claro, branco e azul forte), responsivo
-config.js      → link da planilha, mensagens e nível de exigência da busca
-busca.js       → algoritmo que encontra a resposta para perguntas digitadas
+estilo.css     → identidade visual (azul + menta), responsiva, com modo escuro automático
+config.js      → link da planilha, mensagens, sugestões de perguntas e nível de exigência da busca
+busca.js       → algoritmo que encontra a resposta para perguntas digitadas (com correção de digitação)
+voz.js         → leitura em voz alta e perguntas por voz
 app.js         → fluxo da conversa, menu, vídeos e QR Code
 conteudo.csv   → conteúdo inicial / cópia de segurança da planilha
 ```

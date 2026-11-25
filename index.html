@@ -3,30 +3,49 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#1565c0">
-  <meta name="description" content="OdontoBot – Assistente Virtual Odontológico">
+  <meta name="theme-color" content="#f3f7fc" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0b1424" media="(prefers-color-scheme: dark)">
+  <meta name="description" content="OdontoBot – Assistente Virtual Odontológico. Tire dúvidas sobre saúde bucal, higiene e cuidados antes e depois de procedimentos.">
+  <meta property="og:title" content="OdontoBot – Assistente Virtual Odontológico">
+  <meta property="og:description" content="Tire dúvidas sobre saúde bucal, higiene e cuidados antes e depois de procedimentos odontológicos.">
+  <meta property="og:image" content="https://nicoly-odontobot-up.netlify.app/logo.png">
   <title>OdontoBot – Assistente Virtual Odontológico</title>
   <link rel="icon" type="image/png" href="icone.png">
   <link rel="apple-touch-icon" href="icone.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="estilo.css">
 </head>
 <body>
+  <div class="fundo" aria-hidden="true"><span></span><span></span><span></span></div>
 
   <!-- ===== TELA INICIAL ===== -->
   <section id="tela-inicial" class="tela-inicial">
     <div class="inicial-conteudo">
       <div class="logo-inicial"><img src="logo.png" alt="Logo do OdontoBot: dente sorridente segurando uma placa"></div>
+
+      <span class="selo"><i></i> Assistente virtual odontológico</span>
       <h1 class="marca">Odonto<span>Bot</span></h1>
-      <p class="marca-sub">Assistente Virtual Odontológico</p>
       <p class="boas-vindas">
-        Olá! 👋 Sou o OdontoBot e estou aqui para tirar suas dúvidas sobre
-        saúde bucal, higiene e cuidados antes e depois de procedimentos odontológicos.
+        Tire suas dúvidas sobre <strong>saúde bucal</strong>, <strong>higiene</strong> e
+        <strong>cuidados antes e depois</strong> de procedimentos odontológicos, a qualquer hora.
       </p>
-      <button id="btn-iniciar" class="btn-principal">Iniciar atendimento</button>
-      <button id="btn-qr-inicial" class="btn-link">Mostrar QR Code de acesso</button>
+
+      <ul class="destaques">
+        <li><span>✔</span> Conteúdo revisado</li>
+        <li><span>▶</span> Vídeos explicativos</li>
+        <li><span>⚡</span> Respostas na hora</li>
+      </ul>
+
+      <button id="btn-iniciar" class="btn-principal">
+        Iniciar atendimento
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+      <button id="btn-qr-inicial" class="btn-secundario">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>
+        Mostrar QR Code de acesso
+      </button>
     </div>
     <p class="rodape-inicial">Projeto acadêmico · Saúde Digital · Odontologia</p>
   </section>
@@ -36,17 +55,17 @@
     <header class="topo">
       <div class="topo-info">
         <div class="avatar" aria-hidden="true"><img src="icone.png" alt=""></div>
-        <div>
+        <div class="topo-nome">
           <strong>OdontoBot</strong>
-          <span class="status"><i></i> online</span>
+          <span class="status"><i></i> Online<span class="status-extra">· conteúdo revisado</span></span>
         </div>
       </div>
       <div class="topo-acoes">
         <button id="btn-qr" class="btn-icone" title="QR Code de acesso" aria-label="QR Code de acesso">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>
         </button>
         <button id="btn-menu" class="btn-menu-topo" title="Voltar ao menu inicial">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>
           Menu
         </button>
       </div>
@@ -55,10 +74,15 @@
     <main id="mensagens" class="mensagens" aria-live="polite"></main>
 
     <footer class="entrada">
+      <p id="aviso-voz" class="aviso-voz" role="status" hidden></p>
+      <div id="sugestoes" class="sugestoes" aria-label="Sugestões de perguntas"></div>
       <form id="form-pergunta" class="form-pergunta" autocomplete="off">
-        <input id="campo-pergunta" type="text" placeholder="Digite sua pergunta..." aria-label="Digite sua pergunta" maxlength="200">
-        <button type="submit" class="btn-enviar" aria-label="Enviar">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M3.4 20.4 21 12 3.4 3.6 3.4 10l12.6 2-12.6 2z"/></svg>
+        <input id="campo-pergunta" type="text" placeholder="Digite ou fale sua pergunta..." aria-label="Digite sua pergunta" maxlength="200" enterkeyhint="send">
+        <button type="button" id="btn-voz" class="btn-voz" aria-label="Perguntar por voz" title="Perguntar por voz">
+          <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+        </button>
+        <button type="submit" id="btn-enviar" class="btn-enviar" aria-label="Enviar" disabled>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
         </button>
       </form>
       <p class="aviso">Conteúdo educativo. Não substitui a consulta com o cirurgião-dentista.</p>
@@ -67,7 +91,7 @@
 
   <!-- ===== MODAL DE VÍDEO ===== -->
   <div id="modal-video" class="modal" hidden>
-    <div class="modal-caixa modal-video">
+    <div class="modal-caixa modal-video" role="dialog" aria-modal="true" aria-labelledby="video-titulo">
       <div class="modal-topo">
         <strong id="video-titulo"></strong>
         <button class="btn-fechar" data-fechar aria-label="Fechar">✕</button>
@@ -79,9 +103,9 @@
 
   <!-- ===== MODAL QR CODE ===== -->
   <div id="modal-qr" class="modal" hidden>
-    <div class="modal-caixa modal-qr">
+    <div class="modal-caixa modal-qr" role="dialog" aria-modal="true" aria-labelledby="qr-titulo">
       <div class="modal-topo">
-        <strong><img src="icone.png" alt="" class="logo-modal"> Acesse o OdontoBot</strong>
+        <strong id="qr-titulo"><img src="icone.png" alt="" class="logo-modal"> Acesse o OdontoBot</strong>
         <button class="btn-fechar" data-fechar aria-label="Fechar">✕</button>
       </div>
       <p>Aponte a câmera do celular para o código:</p>
@@ -94,6 +118,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="config.js"></script>
   <script src="busca.js"></script>
+  <script src="voz.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
